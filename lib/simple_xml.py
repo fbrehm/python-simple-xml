@@ -11,13 +11,17 @@
 
 
 # Standard modules
+
 import xml.etree.ElementTree as ET
-from StringIO import StringIO
+
+# Third party modules
+
+from six import StringIO
 
 __author__ = 'Frank Brehm <frank.brehm@profitbricks.com>'
 __copyright__ = '(C) 2010 - 2015 by profitbricks.com'
 __contact__ = 'frank.brehm@profitbricks.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __license__ = 'LGPL3+'
 
 
