@@ -22,7 +22,7 @@ from six import StringIO
 __author__ = 'Frank Brehm <frank.brehm@profitbricks.com>'
 __copyright__ = '(C) 2010 - 2015 by profitbricks.com'
 __contact__ = 'frank.brehm@profitbricks.com'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __license__ = 'LGPL3+'
 
 
@@ -171,6 +171,20 @@ class XMLTree(object):
 
     def __len__(self):
         return len(self.nodes)
+
+
+#==============================================================================
+def parse_xml_file(file_object, encoding=DEFAULT_ENCODING):
+    """
+    Reads the given file object and returns a complete XMLTree object.
+    """
+    tree = ET.parse(file_object)
+    return XMLTree(tree.getroot(), encoding)
+
+
+#==============================================================================
+def parse_xml_string(string, encoding=DEFAULT_ENCODING):
+    return parse_xml_file(StringIO(string), encoding)
 
 
 #==============================================================================
