@@ -22,7 +22,7 @@ from six import StringIO
 __author__ = 'Frank Brehm <frank.brehm@profitbricks.com>'
 __copyright__ = '(C) 2010 - 2015 by profitbricks.com'
 __contact__ = 'frank.brehm@profitbricks.com'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __license__ = 'LGPL3+'
 
 
@@ -95,6 +95,82 @@ class XMLNode(object):
     def __len__(self):
         return 1
 
+
+#==============================================================================
+class XMLTree(object):
+    """
+    Object representation of a XML tree.
+    """
+
+    def __init__(self, node, encoding=DEFAULT_ENCODING):
+        """
+        Constructor.
+
+        @param node: an element from a xml.etree.ElementTree
+        @type node: xml.etree.ElementTree.Element
+        @param encoding: the encoding used for encode from unicode or back
+        @type encoding: str
+        """
+
+        self.nodes = {}
+        """
+        @ivar: dict with all available tag names as keys and either
+               a list of or a single XMLTree or XMLNode object.
+        @type: dict
+        """
+
+        self.node = node
+        """
+        @ivar: a xml.etree.ElementTree.Element object for the attributes
+               of the current XMLTree object
+        @type: xml.etree.ElementTree.Element object
+        """
+
+        self.encoding = encoding
+        """
+        @ivar: the encoding used for encode from unicode or back
+        @type: str
+        """
+
+        for n in node:
+            if len(n.getchildren()):
+                xmlnode = XMLTree(n, self.encoding)
+            else:
+                xmlnode = XMLNode(n, self.encoding)
+            if n.tag in self.nodes:
+                if isinstance(self.nodes[n.tag], (XMLTree, XMLNode)):
+                    self.nodes[n.tag] = [self.nodes[n.tag], xmlnode]
+                else:
+                    self.nodes[n.tag].append(xmlnode)
+            else:
+                self.nodes[n.tag] = xmlnode
+
+    def __unicode__(self):
+        t = str(dict((k, str(v)) for k, v in six.iteritems(self.nodes)))
+        if six.PY2:
+            return t.decode(self.encoding)
+        return t
+
+    def __str__(self):
+        return str(dict((k, str(v)) for k, v in six.iteritems(self.nodes)))
+
+    def __bytes__(self):
+        t = str(dict((k, str(v)) for k, v in six.iteritems(self.nodes)))
+        if six.PY2:
+            return t
+        return t.encode(self.encoding)
+
+    def __getattr__(self, attr):
+        return self.nodes[attr]
+
+    def __getitem__(self, key):
+        return self.node.attrib.get(key)
+
+    def __setitem__(self, key, value):
+        self.node.attrib[key] = value
+
+    def __len__(self):
+        return len(self.nodes)
 
 
 #==============================================================================
