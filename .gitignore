@@ -1,0 +1,10 @@
+*.swp
+*.old
+*.pyc
+*.egg
+*-stamp
+build
+MANIFEST
+trace
+/*.egg-info
+/dist
