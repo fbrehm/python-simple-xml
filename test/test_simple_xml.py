@@ -31,6 +31,21 @@ from pb_base.common import to_utf8_or_bust
 
 LOG = logging.getLogger('test_simple_xml')
 
+SAMPLE_XML = """\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<verzeichnis bla="blub">
+    <titel>Wikipedia Städteverzeichnis</titel>
+    <eintrag land="CH">
+        <stichwort>Genf</stichwort>
+        <eintragstext>Genf ist der Sitz von ...</eintragstext>
+    </eintrag>
+    <eintrag land="DE">
+        <stichwort>Köln</stichwort>
+        <eintragstext>Köln ist eine Stadt, die ...</eintragstext>
+    </eintrag>
+</verzeichnis>
+"""
+
 # =============================================================================
 class TestSimpleXml(SimpleXmlTestcase):
 
@@ -44,7 +59,22 @@ class TestSimpleXml(SimpleXmlTestcase):
 
         LOG.info("Test importing simple_xml ...")
 
-        import simple_xml
+        import simple_xml       # noqa
+
+    # -------------------------------------------------------------------------
+    def test_parse_string(self):
+
+        LOG.info("Test parsing a XML string into a XMLTree object and its string representation.")
+
+        import simple_xml       # noqa
+        from simple_xml import parse_xml_string
+
+        if self.verbose > 2:
+            LOG.debug("Source XML:\n%s", SAMPLE_XML)
+
+        tree = parse_xml_string(SAMPLE_XML)
+        LOG.debug("XMLTree object as a dict: %r", tree.to_dict())
+        LOG.debug("Str of XMLTree object: %s", str(tree))
 
 
 # =============================================================================
@@ -61,6 +91,7 @@ if __name__ == '__main__':
     suite = unittest.TestSuite()
 
     suite.addTest(TestSimpleXml('test_import', verbose))
+    suite.addTest(TestSimpleXml('test_parse_string', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 

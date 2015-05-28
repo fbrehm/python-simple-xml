@@ -11,7 +11,7 @@
 
 
 # Standard modules
-
+import logging
 import xml.etree.ElementTree as ET
 
 # Third party modules
@@ -22,11 +22,12 @@ from six import StringIO
 __author__ = 'Frank Brehm <frank.brehm@profitbricks.com>'
 __copyright__ = '(C) 2010 - 2015 by profitbricks.com'
 __contact__ = 'frank.brehm@profitbricks.com'
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 __license__ = 'LGPL3+'
 
 
 DEFAULT_ENCODING = 'utf-8'
+LOG = logging.getLogger(__name__)
 
 #==============================================================================
 class XMLNode(object):
@@ -74,18 +75,22 @@ class XMLNode(object):
     def __str__(self):
         """Returns the text value of the node as str"""
         t = self.node.text or ''
+        # LOG.debug("Text of XMLNode before coding: %r", t)
         if six.PY2:
-            if isinstance(t, text_type):
+            if isinstance(t, six.text_type):
+                # LOG.debug("Encoding to %r ...", self.encoding)
                 t = t.encode(self.encoding)
         else:
             if isinstance(t, six.binary_type):
+                # LOG.debug("Decoding from %r ...", self.encoding)
                 t = t.decode(self.encoding)
+        # LOG.debug("Text of XMLNode after coding: %r", t)
         return t
 
     def __bytes__(self):
         """Returns the text value of the node as str in Python2 and bytes in Python3"""
         t = self.node.text or ''
-        if isinstance(t, text_type):
+        if isinstance(t, six.text_type):
             t = t.encode(self.encoding)
         return t
 
@@ -151,8 +156,28 @@ class XMLTree(object):
             return t.decode(self.encoding)
         return t
 
+    def to_dict(self):
+        d = {}
+        for key in self.nodes:
+            value = self.nodes[key]
+            if isinstance(value, XMLNode):
+                value = str(value)
+            elif isinstance(value, XMLTree):
+                value = value.to_dict()
+            else:
+                l = []
+                for v in value:
+                    if isinstance(value, XMLNode):
+                        val = str(v)
+                    else:
+                        val = v.to_dict()
+                    l.append(val)
+                value = l
+            d[key] = value
+        return d
+
     def __str__(self):
-        return str(dict((k, str(v)) for k, v in six.iteritems(self.nodes)))
+        return str(self.to_dict())
 
     def __bytes__(self):
         t = str(dict((k, str(v)) for k, v in six.iteritems(self.nodes)))
