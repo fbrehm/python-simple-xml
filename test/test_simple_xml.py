@@ -35,6 +35,7 @@ SAMPLE_XML = """\
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <verzeichnis bla="blub">
     <titel>Wikipedia Städteverzeichnis</titel>
+    <author>&lt;frank@brehm-online.com&gt;</author>
     <eintrag land="CH">
         <stichwort>Genf</stichwort>
         <eintragstext>Genf ist der Sitz von ...</eintragstext>
@@ -45,6 +46,8 @@ SAMPLE_XML = """\
     </eintrag>
 </verzeichnis>
 """
+
+BROKEN_XML = """<uhu><banane</uhu>"""
 
 # =============================================================================
 class TestSimpleXml(SimpleXmlTestcase):
@@ -76,6 +79,25 @@ class TestSimpleXml(SimpleXmlTestcase):
         LOG.debug("XMLTree object as a dict: %r", tree.to_dict())
         LOG.debug("Str of XMLTree object: %s", str(tree))
 
+    # -------------------------------------------------------------------------
+    def test_broken_xml(self):
+
+        LOG.info("Test trying to parse a broken XML string.")
+
+        import simple_xml       # noqa
+        from simple_xml import parse_xml_string
+        from xml.etree.ElementTree import ParseError
+
+        if self.verbose > 2:
+            LOG.debug("Broken source XML: %r", BROKEN_XML)
+
+        with self.assertRaises(ParseError) as cm:
+            tree = parse_xml_string(BROKEN_XML)
+        e = cm.exception
+        LOG.debug(
+            "%s raised as expected on trying to parse broken XML: %s.",
+            'ParseError', e)
+
 
 # =============================================================================
 
@@ -92,6 +114,7 @@ if __name__ == '__main__':
 
     suite.addTest(TestSimpleXml('test_import', verbose))
     suite.addTest(TestSimpleXml('test_parse_string', verbose))
+    suite.addTest(TestSimpleXml('test_broken_xml', verbose))
 
     runner = unittest.TextTestRunner(verbosity=verbose)
 
