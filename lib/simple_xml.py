@@ -22,7 +22,7 @@ from six import StringIO
 __author__ = 'Frank Brehm <frank.brehm@profitbricks.com>'
 __copyright__ = '(C) 2010 - 2015 by profitbricks.com'
 __contact__ = 'frank.brehm@profitbricks.com'
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 __license__ = 'LGPL3+'
 
 
@@ -116,6 +116,23 @@ class XMLNode(object):
     def __len__(self):
         return 1
 
+    #--------------------------------------------------------------------------
+    def tidy(self, indent_level, indent=DEFAULT_TIDY_INDENT, role=TIDY_ROLE_INNER):
+        """
+        Changes self.node.text and self.node.tail to values designated
+        for a pretty XML output.
+        """
+
+        if self.node.text:
+            self.node.text = self.node.text.strip()
+
+        self.node.tail = '\n'
+        tail_ilevel = indent
+        if role == TIDY_ROLE_LAST or role == TIDY_ROLE_FIRST_AND_LAST:
+            tail_ilevel = indent - 1
+        if tail_ilevel < 0:
+            tail_ilevel = 0
+        self.node.tail += (indent * tail_ilevel)
 
 #==============================================================================
 class XMLTree(object):
