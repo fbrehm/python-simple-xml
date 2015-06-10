@@ -22,12 +22,20 @@ from six import StringIO
 __author__ = 'Frank Brehm <frank.brehm@profitbricks.com>'
 __copyright__ = '(C) 2010 - 2015 by profitbricks.com'
 __contact__ = 'frank.brehm@profitbricks.com'
-__version__ = '0.2.3'
+__version__ = '0.3.0'
 __license__ = 'LGPL3+'
 
 
-DEFAULT_ENCODING = 'utf-8'
 LOG = logging.getLogger(__name__)
+
+# Some module constants
+DEFAULT_ENCODING = 'utf-8'
+DEFAULT_TIDY_INDENT = '    '
+
+TIDY_ROLE_INNER = 0
+TIDY_ROLE_FIRST = 1
+TIDY_ROLE_LAST = 2
+TIDY_ROLE_FIRST_AND_LAST = 3
 
 #==============================================================================
 class XMLNode(object):
@@ -36,6 +44,7 @@ class XMLNode(object):
     any children.
     """
 
+    #--------------------------------------------------------------------------
     def __init__(self, node, encoding=DEFAULT_ENCODING):
         """
         Constructor.
@@ -59,12 +68,15 @@ class XMLNode(object):
         @type: str
         """
 
+    #--------------------------------------------------------------------------
     def __getitem__(self, key):
         return self.node.attrib.get(key)
 
+    #--------------------------------------------------------------------------
     def __setitem__(self, key, value):
         self.node.attrib[key] = value
 
+    #--------------------------------------------------------------------------
     def __unicode__(self):
         """Returns the text value of the node as unicode in Python2 and str in Python3"""
         t = self.node.text or ''
@@ -72,6 +84,7 @@ class XMLNode(object):
             t = t.decode(self.encoding)
         return t
 
+    #--------------------------------------------------------------------------
     def __str__(self):
         """Returns the text value of the node as str"""
         t = self.node.text or ''
@@ -87,6 +100,7 @@ class XMLNode(object):
         # LOG.debug("Text of XMLNode after coding: %r", t)
         return t
 
+    #--------------------------------------------------------------------------
     def __bytes__(self):
         """Returns the text value of the node as str in Python2 and bytes in Python3"""
         t = self.node.text or ''
@@ -94,9 +108,11 @@ class XMLNode(object):
             t = t.encode(self.encoding)
         return t
 
+    #--------------------------------------------------------------------------
     def __repr__(self):
         return self.__unicode__()
 
+    #--------------------------------------------------------------------------
     def __len__(self):
         return 1
 
@@ -107,6 +123,7 @@ class XMLTree(object):
     Object representation of a XML tree.
     """
 
+    #--------------------------------------------------------------------------
     def __init__(self, node, encoding=DEFAULT_ENCODING):
         """
         Constructor.
@@ -150,12 +167,14 @@ class XMLTree(object):
             else:
                 self.nodes[n.tag] = xmlnode
 
+    #--------------------------------------------------------------------------
     def __unicode__(self):
         t = str(dict((k, str(v)) for k, v in six.iteritems(self.nodes)))
         if six.PY2:
             return t.decode(self.encoding)
         return t
 
+    #--------------------------------------------------------------------------
     def to_dict(self):
         d = {}
         for key in self.nodes:
@@ -176,24 +195,30 @@ class XMLTree(object):
             d[key] = value
         return d
 
+    #--------------------------------------------------------------------------
     def __str__(self):
         return str(self.to_dict())
 
+    #--------------------------------------------------------------------------
     def __bytes__(self):
         t = str(dict((k, str(v)) for k, v in six.iteritems(self.nodes)))
         if six.PY2:
             return t
         return t.encode(self.encoding)
 
+    #--------------------------------------------------------------------------
     def __getattr__(self, attr):
         return self.nodes[attr]
 
+    #--------------------------------------------------------------------------
     def __getitem__(self, key):
         return self.node.attrib.get(key)
 
+    #--------------------------------------------------------------------------
     def __setitem__(self, key, value):
         self.node.attrib[key] = value
 
+    #--------------------------------------------------------------------------
     def __len__(self):
         return len(self.nodes)
 
